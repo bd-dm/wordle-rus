@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -7,6 +9,7 @@ public class GameManager : MonoBehaviour
 {
     private const int WordLength = 5;
     private const int RowsAmount = 6;
+    private const float LetterAnimationOffset = .5f;
 
     [SerializeField] [Tooltip("Word repository")]
     private WordRepository wordRepository;
@@ -46,8 +49,11 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         SetupGrid();
+    }
+
+    private void Start()
+    {
         _guessedWord = wordRepository.GetRandomWord();
-        Debug.Log(_guessedWord);
     }
 
     private void Update()
@@ -142,17 +148,28 @@ public class GameManager : MonoBehaviour
         {
             for (var i = 0; i < WordLength; i++)
             {
+                LetterState state;
+                
                 if (_guessedWord[i] == _currentWordString[i])
                 {
-                    _letters[_currentRow * WordLength + i].SetState(LetterState.Correct);
-                } else if (_guessedWord.Contains(_currentWordString[i]))
+                    state = LetterState.Correct;
+                } 
+                else if (_guessedWord.Contains(_currentWordString[i]))
                 {
-                    _letters[_currentRow * WordLength + i].SetState(LetterState.WrongLocation);
+                    state = LetterState.WrongLocation;
                 }
                 else
                 {
-                    _letters[_currentRow * WordLength + i].SetState(LetterState.Incorrect);
+                    state = LetterState.Incorrect;
                 }
+
+                StartCoroutine(
+                    PlayLetterState(
+                        i * LetterAnimationOffset, 
+                        _currentRow * WordLength + i, 
+                        state
+                    )
+                );
             }
 
             if (_currentRow != RowsAmount - 1)
@@ -160,5 +177,11 @@ public class GameManager : MonoBehaviour
                 SetRow(_currentRow + 1);
             }
         }
-    } 
+    }
+
+    IEnumerator PlayLetterState(float offset, int index, LetterState letterState)
+    {
+        yield return new WaitForSeconds(offset);
+        _letters[index].SetState(letterState);
+    }
 }

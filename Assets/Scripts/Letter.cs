@@ -6,6 +6,7 @@ public class Letter : MonoBehaviour
 {
     private readonly int _animatorResetTrigger = Animator.StringToHash("Reset");
     private readonly int _animatorShakeTrigger = Animator.StringToHash("Shake");
+    private readonly int _animatorEnterLetterTrigger = Animator.StringToHash("EnterLetter");
     private readonly int _animatorStateParameter = Animator.StringToHash("State");
 
     private Animator _animator = null;
@@ -29,6 +30,7 @@ public class Letter : MonoBehaviour
     {
         Entry = c;
         _text.text = c.ToString().ToUpper();
+        _animator.SetTrigger(_animatorEnterLetterTrigger);
     }
 
     public void DeleteLetter()
